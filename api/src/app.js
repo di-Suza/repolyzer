@@ -2,7 +2,11 @@ import cors from 'cors';
 import express from 'express';
 
 import { env } from './config/env.js';
+import { globalErrorHandler } from './middleware/globalErrorHandler.js';
+import { apiRateLimiter } from './middleware/rateLimiter.js';
 import healthRouter from './routes/health.routes.js';
+import apiRouter from './routes/index.js';
+import { AppError } from './utils/appError.js';
 
 export const createApp = () => {
   const app = express();
@@ -24,21 +28,16 @@ export const createApp = () => {
   });
 
   app.use('/health', healthRouter);
+
+  app.use('/api', apiRateLimiter);
   app.use('/api/health', healthRouter);
+  app.use('/api', apiRouter);
 
-  app.use((req, res) => {
-    res.status(404).json({
-      message: `Route ${req.method} ${req.originalUrl} not found`,
-    });
+  app.use((req, _res, next) => {
+    next(new AppError(`Route ${req.method} ${req.originalUrl} not found`, 404));
   });
 
-  app.use((err, _req, res, _next) => {
-    const statusCode = err.statusCode ?? 500;
-
-    res.status(statusCode).json({
-      message: err.message ?? 'Internal server error',
-    });
-  });
+  app.use(globalErrorHandler);
 
   return app;
 };
