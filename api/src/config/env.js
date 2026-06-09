@@ -11,4 +11,5 @@ export const env = {
   NODE_ENV: process.env.NODE_ENV ?? 'development',
   PORT: numberFromEnv(process.env.PORT, 8080),
   FRONTEND_URL: process.env.FRONTEND_URL ?? 'http://localhost:5173',
+  GITHUB_TOKEN: process.env.GITHUB_TOKEN ?? '',
 };
