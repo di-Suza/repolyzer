@@ -139,7 +139,13 @@ const App = () => {
 
         {canShowRepos && (
           <div className="flex w-full flex-col gap-6">
-            <SortDropdown value={sort} onChange={handleSortChange} />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-(--color-text-primary)">Repositories</h2>
+                <p className="mt-1 text-sm text-(--color-text-muted)">Explore public repositories for @{username}</p>
+              </div>
+              <SortDropdown value={sort} onChange={handleSortChange} />
+            </div>
             <RepoList
               username={username}
               sort={sort}
