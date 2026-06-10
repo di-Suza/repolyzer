@@ -7,14 +7,14 @@ import LanguageChart from "./LanguageChart";
 const PER_PAGE = 30;
 
 const RepoList = ({ username, sort, page, onLoadMore }) => {
-  const { data, isLoading, isFetching, error } = useGetUserReposQuery({
+  const { currentData, isFetching, error } = useGetUserReposQuery({
     username,
     sort,
     page,
     perPage: PER_PAGE,
   });
 
-  if (isLoading) {
+  if (isFetching && !currentData) {
     return (
       <div className="grid w-full gap-4 sm:grid-cols-2">
         {[...Array(6)].map((_, i) => (
@@ -26,8 +26,8 @@ const RepoList = ({ username, sort, page, onLoadMore }) => {
 
   if (error) return <ErrorMessage error={error} />;
 
-  const repos = data?.data?.repos ?? [];
-  const hasMore = (data?.results ?? 0) >= PER_PAGE;
+  const repos = currentData?.data?.repos ?? [];
+  const hasMore = (currentData?.results ?? 0) >= PER_PAGE;
 
   if (!repos.length) {
     return (

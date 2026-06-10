@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SearchBar from "./shared/components/SearchBar";
 import UserProfile from "./features/github/components/UserProfile";
 import RepoList from "./features/github/components/RepoList";
 import SortDropdown from "./shared/components/SortDropdown";
 import { addRecentSearch } from "./features/github/githubSlice";
+import useDebounce from "./shared/hooks/useDebounce";
+
+const SEARCH_DEBOUNCE_DELAY = 700;
 
 const App = () => {
   const dispatch = useDispatch();
@@ -14,19 +17,24 @@ const App = () => {
   const [username, setUsername] = useState("");
   const [sort, setSort] = useState("stars");
   const [page, setPage] = useState(1);
+  const debouncedSearchValue = useDebounce(searchValue, SEARCH_DEBOUNCE_DELAY);
 
-  const handleSearch = (nextUsername) => {
+  const applySearch = (nextUsername) => {
     const cleanUsername = nextUsername.trim();
 
     if (!cleanUsername) {
+      setUsername("");
       return;
     }
 
-    setSearchValue(cleanUsername);
     setUsername(cleanUsername);
     setPage(1);
     dispatch(addRecentSearch(cleanUsername));
   };
+
+  useEffect(() => {
+    applySearch(debouncedSearchValue);
+  }, [debouncedSearchValue]);
 
   const handleSortChange = (nextSort) => {
     setSort(nextSort);
@@ -41,7 +49,6 @@ const App = () => {
           onBlur={() => setIsSearchActive(false)}
           onChange={setSearchValue}
           onFocus={() => setIsSearchActive(true)}
-          onSearch={handleSearch}
         />
         {isSearchActive && searchValue && recentSearches.length > 0 && (
           <div className="mt-2 overflow-hidden rounded-lg border border-(--color-border) bg-(--color-surface) shadow-(--shadow-panel)">
@@ -52,7 +59,8 @@ const App = () => {
                 type="button"
                 onMouseDown={(event) => {
                   event.preventDefault();
-                  handleSearch(search);
+                  setSearchValue(search);
+                  applySearch(search);
                 }}
               >
                 {search}

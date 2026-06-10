@@ -1,7 +1,6 @@
-const SearchBar = ({ value, onChange, onSearch, onFocus, onBlur }) => {
+const SearchBar = ({ value, onChange, onFocus, onBlur }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (value.trim()) onSearch(value.trim());
   };
 
   return (
@@ -17,12 +16,6 @@ const SearchBar = ({ value, onChange, onSearch, onFocus, onBlur }) => {
         onFocus={onFocus}
         placeholder="Enter GitHub username..."
       />
-      <button
-        className="h-12 shrink-0 rounded-md bg-(--color-accent) px-5 text-sm font-semibold text-white transition hover:bg-(--color-accent-hover) focus:outline-none focus:ring-2 focus:ring-(--color-focus) focus:ring-offset-2 focus:ring-offset-(--color-surface)"
-        type="submit"
-      >
-        Search
-      </button>
     </form>
   );
 };
