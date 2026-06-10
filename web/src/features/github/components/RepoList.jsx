@@ -2,7 +2,6 @@ import { useGetUserReposQuery } from "../githubApi";
 import RepoCard from "./RepoCard";
 import SkeletonCard from "../../../shared/components/SkeletonCard";
 import ErrorMessage from "../../../shared/components/ErrorMessage";
-import LanguageChart from "./LanguageChart";
 
 const PER_PAGE = 30;
 
@@ -13,8 +12,13 @@ const RepoList = ({ username, sort, page, onLoadMore }) => {
     page,
     perPage: PER_PAGE,
   });
+  const repos = currentData?.data?.repos ?? [];
+  const firstRepoOwner = repos[0]?.owner?.login?.toLowerCase();
+  const isStaleRepoData = Boolean(
+    repos.length > 0 && firstRepoOwner !== username.trim().toLowerCase(),
+  );
 
-  if (isFetching && !currentData) {
+  if ((isFetching && (!currentData || isStaleRepoData)) || isStaleRepoData) {
     return (
       <div className="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
         {[...Array(10)].map((_, i) => (
@@ -26,7 +30,6 @@ const RepoList = ({ username, sort, page, onLoadMore }) => {
 
   if (error) return <ErrorMessage error={error} />;
 
-  const repos = currentData?.data?.repos ?? [];
   const hasMore = (currentData?.results ?? 0) >= PER_PAGE;
 
   if (!repos.length) {
@@ -46,17 +49,17 @@ const RepoList = ({ username, sort, page, onLoadMore }) => {
       </div>
 
       {hasMore && (
-        <button
-          className="h-11 rounded-md border border-(--color-border) bg-(--color-surface) px-4 text-sm font-semibold text-(--color-text-primary) transition hover:border-(--color-border-strong) disabled:cursor-not-allowed disabled:opacity-60"
-          type="button"
-          disabled={isFetching}
-          onClick={onLoadMore}
-        >
-          {isFetching ? "Loading..." : "Load More"}
-        </button>
+        <div className="flex justify-center pt-2">
+          <button
+            className="inline-flex h-11 min-w-40 items-center justify-center rounded-md border border-(--color-border) bg-(--color-accent) px-5 text-sm font-semibold text-white shadow-[0_14px_36px_rgb(35_134_54/20%)] transition hover:-translate-y-0.5 hover:border-(--color-accent-hover) hover:bg-(--color-accent-hover) disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60"
+            type="button"
+            disabled={isFetching}
+            onClick={onLoadMore}
+          >
+            {isFetching ? "Loading repos..." : "Load more repositories"}
+          </button>
+        </div>
       )}
-
-      {repos.length > 0 && <LanguageChart repos={repos} />}
     </div>
   );
 };

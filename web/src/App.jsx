@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SearchBar from "./shared/components/SearchBar";
+import SkeletonProfile from "./shared/components/SkeletonProfile";
 import UserProfile from "./features/github/components/UserProfile";
 import RepoList from "./features/github/components/RepoList";
 import SortDropdown from "./shared/components/SortDropdown";
 import { addRecentSearch } from "./features/github/githubSlice";
-import { useGetUserQuery } from "./features/github/githubApi";
+import { githubApi, useGetUserQuery } from "./features/github/githubApi";
 import useDebounce from "./shared/hooks/useDebounce";
 import { AppHeader } from "./shared/components/AppHeader";
 
 const SEARCH_DEBOUNCE_DELAY = 700;
+const REPOS_PER_PAGE = 30;
 
 const App = () => {
   const dispatch = useDispatch();
@@ -28,6 +30,15 @@ const App = () => {
   } = useGetUserQuery(username, {
     skip: !username,
   });
+  const loadedReposResult = useSelector(
+    githubApi.endpoints.getUserRepos.select({
+      username,
+      sort,
+      page,
+      perPage: REPOS_PER_PAGE,
+    }),
+  );
+  const loadedRepos = loadedReposResult?.data?.data?.repos ?? [];
 
   const applySearch = (nextUsername) => {
     const cleanUsername = nextUsername.trim();
@@ -63,9 +74,19 @@ const App = () => {
   };
 
   const shouldShowRecentSearches = isSearchActive && searchValue.trim() && recentSearches.length > 0;
-  const isUserNotFound = isUserError && userError?.status === 404;
-  const canShowUserProfile = username && !isUserError;
-  const canShowRepos = username && currentUserData && !isUserError;
+  const normalizedSearchValue = searchValue.trim().toLowerCase();
+  const normalizedUsername = username.trim().toLowerCase();
+  const currentUserLogin = currentUserData?.data?.user?.login?.toLowerCase();
+  const hasFreshUserData = Boolean(username && currentUserLogin === normalizedUsername);
+  const isWaitingForDebouncedSearch = Boolean(
+    normalizedSearchValue && normalizedSearchValue !== normalizedUsername,
+  );
+  const shouldShowSearchLoading = Boolean(
+    isWaitingForDebouncedSearch || (username && isUserFetching && !hasFreshUserData),
+  );
+  const isUserNotFound = !shouldShowSearchLoading && isUserError && userError?.status === 404;
+  const canShowUserProfile = username && !shouldShowSearchLoading && !isUserError;
+  const canShowRepos = username && hasFreshUserData && !shouldShowSearchLoading && !isUserError;
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,var(--color-surface-muted)_0,var(--color-app-bg)_18rem)] text-(--color-text-primary)">
@@ -122,6 +143,8 @@ const App = () => {
           </section>
         )}
 
+        {shouldShowSearchLoading && <SkeletonProfile />}
+
         {isUserNotFound && (
           <section className="rounded-lg border border-(--color-border) bg-(--color-surface) p-8 text-center shadow-(--shadow-panel)">
             <div className="mx-auto flex size-14 items-center justify-center rounded-full border border-(--color-border) bg-(--color-app-bg) text-(--color-accent-hover)">
@@ -135,7 +158,7 @@ const App = () => {
           </section>
         )}
 
-        {canShowUserProfile && <UserProfile username={username} />}
+        {canShowUserProfile && <UserProfile username={username} repos={loadedRepos} />}
 
         {canShowRepos && (
           <div className="flex w-full flex-col gap-6">

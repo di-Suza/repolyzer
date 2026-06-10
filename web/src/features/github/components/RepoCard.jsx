@@ -206,12 +206,22 @@ const RepoCard = ({ repo }) => {
   useEffect(() => {
     if (!isDetailsOpen) return undefined;
 
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
     const handleEscape = (event) => {
       if (event.key === 'Escape') closeDetails();
     };
 
     window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      window.removeEventListener('keydown', handleEscape);
+    };
   }, [isDetailsOpen, isClosing]);
 
   return (
@@ -477,7 +487,7 @@ const RepoCard = ({ repo }) => {
                               {item.label}
                             </p>
                             <p className="text-xs text-(--color-text-muted)">
-                              {item.value} · {item.meta}
+                              {item.value} - {item.meta}
                             </p>
                           </div>
                         </div>
