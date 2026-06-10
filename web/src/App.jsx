@@ -96,6 +96,29 @@ const App = () => {
           )}
         </div>
 
+        {!username && (
+          <section className="rounded-lg border border-(--color-border) bg-(--color-surface) p-8 text-center shadow-(--shadow-panel)">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-full border border-(--color-border) bg-(--color-app-bg) text-(--color-accent-hover)">
+              <span className="text-2xl font-semibold">GH</span>
+            </div>
+            <h2 className="mt-5 text-2xl font-semibold text-(--color-text-primary)">Search any GitHub profile</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-(--color-text-muted)">
+              Type a username to analyze profile details, repositories, language activity, and contribution patterns.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
+              <span className="rounded-md border border-(--color-border) bg-(--color-app-bg) px-3 py-1.5 text-xs font-semibold text-(--color-text-muted)">
+                Profiles
+              </span>
+              <span className="rounded-md border border-(--color-border) bg-(--color-app-bg) px-3 py-1.5 text-xs font-semibold text-(--color-text-muted)">
+                Repositories
+              </span>
+              <span className="rounded-md border border-(--color-border) bg-(--color-app-bg) px-3 py-1.5 text-xs font-semibold text-(--color-text-muted)">
+                Languages
+              </span>
+            </div>
+          </section>
+        )}
+
         {username && (
           <div className="flex w-full flex-col gap-6">
             <UserProfile username={username} />
