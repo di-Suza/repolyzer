@@ -1,9 +1,15 @@
-import React from 'react'
+import React, { useState } from "react";
+import SearchBar from "./shared/components/SearchBar";
 
 const App = () => {
-  return (
-    <div>App</div>
-  )
-}
+  const [username, setUsername] = useState("");
 
-export default App
+  return (
+    <div>
+      <SearchBar onSearch={setUsername} />
+
+    </div>
+  );
+};
+
+export default App;
