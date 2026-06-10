@@ -33,6 +33,10 @@ input {
   font: inherit;
 }
 
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 @keyframes repoBackdropIn {
   from {
     opacity: 0;
