@@ -1,4 +1,7 @@
+import { useState } from 'react';
+
 const RepoCard = ({ repo }) => {
+  const [expanded, setExpanded] = useState(false);
   const { name, description, language, stargazers_count, updated_at } = repo;
 
   return (
@@ -16,6 +19,49 @@ const RepoCard = ({ repo }) => {
         <span>{stargazers_count} Stars</span>
         <span>Updated {new Date(updated_at).toLocaleDateString()}</span>
       </div>
+
+      {expanded && (
+        <div className="mt-4 border-t border-(--color-border) pt-4 text-sm text-(--color-text-muted)">
+          <div className="grid gap-2 sm:grid-cols-2">
+            <p>Open Issues: {repo.open_issues_count}</p>
+            <p>Default Branch: {repo.default_branch}</p>
+            <p>Forks: {repo.forks_count}</p>
+            <p>Watchers: {repo.watchers_count}</p>
+            {repo.license && <p>License: {repo.license.name}</p>}
+          </div>
+
+          {repo.topics?.length > 0 && <p className="mt-3">Topics: {repo.topics.join(', ')}</p>}
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            {repo.homepage && (
+              <a
+                className="text-sm font-semibold text-(--color-accent-hover) hover:underline"
+                href={repo.homepage}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Live Demo
+              </a>
+            )}
+            <a
+              className="text-sm font-semibold text-(--color-accent-hover) hover:underline"
+              href={repo.html_url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              View on GitHub
+            </a>
+          </div>
+        </div>
+      )}
+
+      <button
+        className="mt-4 text-sm font-semibold text-(--color-accent-hover) transition hover:underline"
+        type="button"
+        onClick={() => setExpanded((current) => !current)}
+      >
+        {expanded ? 'Less' : 'More'}
+      </button>
     </div>
   );
 };
