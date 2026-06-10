@@ -44,6 +44,8 @@ The root `package.json` only exists to run both apps from the project root. The 
 - dotenv
 - cors
 - express-rate-limit
+- Vitest
+- Supertest
 
 ## Getting Started
 
@@ -113,6 +115,7 @@ Default local URLs:
 | `npm run build:web` | Builds the frontend for production. |
 | `npm run preview:web` | Serves the built frontend with Vite preview. |
 | `npm run start:api` | Starts the API without watch mode. |
+| `npm run test:api` | Runs backend route/controller and cache tests. |
 
 ## App Flow
 
@@ -146,6 +149,10 @@ repolyzer/
       controllers/
         repos.controller.js
         users.controller.js
+      __tests__/
+        cache.test.js
+        repos.test.js
+        users.test.js
       middleware/
         globalErrorHandler.js
         rateLimiter.js
@@ -229,6 +236,9 @@ repolyzer/
 | `api/src/routes/health.routes.js` | Provides health responses for uptime checks. |
 | `api/src/controllers/users.controller.js` | Handles HTTP request/response shape for user profile fetches. |
 | `api/src/controllers/repos.controller.js` | Handles query params and response shape for repository list fetches. |
+| `api/src/__tests__/users.test.js` | Verifies user route/controller behavior with the GitHub service mocked. |
+| `api/src/__tests__/repos.test.js` | Verifies repo route/controller behavior, including query params passed to the service. |
+| `api/src/__tests__/cache.test.js` | Unit-tests the in-memory cache service without mocks. |
 | `api/src/services/github.service.js` | Owns GitHub API calls, path validation, params cleanup, GitHub error mapping, and cache usage. |
 | `api/src/services/cache.service.js` | Provides the in-memory TTL cache used by GitHub services. |
 | `api/src/middleware/rateLimiter.js` | Limits `/api` request bursts to protect the proxy and GitHub quota. |
@@ -265,6 +275,20 @@ repolyzer/
 | `web/src/shared/components/SortDropdown.jsx` | Lets users change GitHub repo sort params. |
 | `web/src/shared/hooks/useDebounce.jsx` | Delays search commits until typing pauses. |
 | `web/src/styles/index.css` | Tailwind import, GitHub dark theme variables, global button cursor behavior, and modal animations. |
+
+## Testing
+
+Run backend tests from the project root:
+
+```bash
+npm run test:api
+```
+
+The backend test suite uses Vitest and Supertest.
+
+- User and repo route tests mock `github.service.js`, so tests do not hit the real GitHub API.
+- Cache tests call `cache.service.js` directly because the cache is local application logic.
+- Repo tests verify that pagination and sort query params are passed into the service layer correctly.
 
 ## API Documentation
 
