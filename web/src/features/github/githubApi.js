@@ -27,6 +27,18 @@ export const githubApi = createApi({
           type,
         },
       }),
+      serializeQueryArgs: ({ queryArgs }) => `${queryArgs.username}-${queryArgs.sort}`,
+      merge: (currentCache, newItems, { arg }) => {
+        if (arg.page === 1) {
+          return newItems;
+        }
+
+        currentCache.results = newItems.results;
+        currentCache.data.repos.push(...(newItems.data?.repos ?? []));
+      },
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg?.page !== previousArg?.page;
+      },
     }),
   }),
 });
