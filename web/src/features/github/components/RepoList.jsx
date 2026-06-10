@@ -16,8 +16,8 @@ const RepoList = ({ username, sort, page, onLoadMore }) => {
 
   if (isFetching && !currentData) {
     return (
-      <div className="grid w-full gap-4 sm:grid-cols-2">
-        {[...Array(6)].map((_, i) => (
+      <div className="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+        {[...Array(10)].map((_, i) => (
           <SkeletonCard key={i} />
         ))}
       </div>
@@ -39,7 +39,7 @@ const RepoList = ({ username, sort, page, onLoadMore }) => {
 
   return (
     <div className="w-full space-y-4">
-      <div className="grid w-full gap-4 sm:grid-cols-2">
+      <div className="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
         {repos.map((repo) => (
           <RepoCard key={repo.id} repo={repo} />
         ))}
