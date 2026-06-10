@@ -2,11 +2,16 @@ import cors from 'cors';
 import express from 'express';
 
 import { env } from './config/env.js';
+import { globalErrorHandler } from './middleware/globalErrorHandler.js';
+import { apiRateLimiter } from './middleware/rateLimiter.js';
 import healthRouter from './routes/health.routes.js';
+import apiRouter from './routes/index.js';
+import { AppError } from './utils/appError.js';
 
 export const createApp = () => {
   const app = express();
 
+  // Restrict browser access to the configured frontend while still allowing cookies/credentials later.
   app.use(
     cors({
       origin: env.FRONTEND_URL,
@@ -23,22 +28,20 @@ export const createApp = () => {
     });
   });
 
+  // Expose health both at root-level and under /api for deployment and frontend checks.
   app.use('/health', healthRouter);
+
+  // Rate limiting is scoped to API routes so health/root probes remain lightweight.
+  app.use('/api', apiRateLimiter);
   app.use('/api/health', healthRouter);
+  app.use('/api', apiRouter);
 
-  app.use((req, res) => {
-    res.status(404).json({
-      message: `Route ${req.method} ${req.originalUrl} not found`,
-    });
+  // Convert unmatched routes into the same operational error pipeline as controller failures.
+  app.use((req, _res, next) => {
+    next(new AppError(`Route ${req.method} ${req.originalUrl} not found`, 404));
   });
 
-  app.use((err, _req, res, _next) => {
-    const statusCode = err.statusCode ?? 500;
-
-    res.status(statusCode).json({
-      message: err.message ?? 'Internal server error',
-    });
-  });
+  app.use(globalErrorHandler);
 
   return app;
 };
