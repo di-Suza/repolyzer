@@ -1,6 +1,7 @@
 import { env } from '../config/env.js';
 
 const sendDevelopmentError = (err, res) => {
+  // In development, expose the full error object so controller/service bugs are quick to debug.
   res.status(err.statusCode).json({
     status: err.status,
     message: err.message,
@@ -10,6 +11,7 @@ const sendDevelopmentError = (err, res) => {
 };
 
 const sendProductionError = (err, res) => {
+  // Operational errors are expected client/runtime failures, so their messages are safe to return.
   if (err.isOperational) {
     return res.status(err.statusCode).json({
       status: err.status,
@@ -17,6 +19,7 @@ const sendProductionError = (err, res) => {
     });
   }
 
+  // Unexpected programming errors stay generic in production to avoid leaking internals.
   return res.status(500).json({
     status: 'error',
     message: 'Something went wrong',
@@ -24,6 +27,7 @@ const sendProductionError = (err, res) => {
 };
 
 export const globalErrorHandler = (err, _req, res, _next) => {
+  // Normalize any thrown error before choosing the environment-specific response shape.
   err.statusCode = err.statusCode ?? 500;
   err.status = err.status ?? 'error';
 

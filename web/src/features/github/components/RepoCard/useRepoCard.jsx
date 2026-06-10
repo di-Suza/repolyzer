@@ -23,6 +23,7 @@ const formatCount = (value = 0) => numberFormatter.format(value ?? 0);
 
 const clampScore = (value) => Math.max(0, Math.min(100, Math.round(value)));
 
+// Date labels are normalized here so the modal can show absolute and relative timeline data together.
 const formatDate = (value) => {
   if (!value) return 'Unknown';
 
@@ -33,6 +34,7 @@ const formatDate = (value) => {
   });
 };
 
+// GitHub timestamps are more useful in analyzer cards when translated into freshness language.
 const formatRelativeDate = (value) => {
   if (!value) return 'Unknown';
 
@@ -49,6 +51,7 @@ const formatRelativeDate = (value) => {
   return `${Math.floor(diffInDays / 365)} years ago`;
 };
 
+// GitHub returns repo size in KB, but the UI needs a compact human-readable size.
 const formatRepoSize = (sizeInKb = 0) => {
   if (!sizeInKb) return '0 KB';
   if (sizeInKb < 1024) return `${formatCount(sizeInKb)} KB`;
@@ -57,6 +60,7 @@ const formatRepoSize = (sizeInKb = 0) => {
   return `${sizeInMb >= 10 ? Math.round(sizeInMb) : sizeInMb.toFixed(1)} MB`;
 };
 
+// Recent pushes should have a stronger effect on the repository pulse than old metadata updates.
 const getActivityScore = (pushedAt) => {
   if (!pushedAt) return 12;
 
@@ -74,10 +78,12 @@ const getActivityScore = (pushedAt) => {
   return 18;
 };
 
+// Log scaling keeps very large star counts from overpowering the rest of the score.
 const getPopularityScore = ({ forks = 0, stars = 0, watchers = 0 }) =>
   clampScore(Math.log10(stars + forks * 2 + watchers + 1) * 28);
 
 const useRepoCard = (repo) => {
+  // Closing is tracked separately so the modal can play its exit animation before unmounting.
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const closeTimerRef = useRef(null);
@@ -95,6 +101,7 @@ const useRepoCard = (repo) => {
     stars: stargazersCount,
     watchers: repo.watchers_count,
   });
+  // Completeness rewards useful repo metadata that users expect in a healthy project profile.
   const completenessScore = clampScore(
     [
       description,
@@ -106,6 +113,7 @@ const useRepoCard = (repo) => {
       repo.has_pull_requests,
     ].filter(Boolean).length * (100 / 7),
   );
+  // Maintenance is derived from collaboration settings and penalized for inactive/archived repos.
   const maintenanceScore = repo.archived || repo.disabled
     ? 14
     : clampScore(
@@ -115,6 +123,7 @@ const useRepoCard = (repo) => {
           (repo.has_discussions ? 8 : 0) +
           (repo.open_issues_count > 25 ? -18 : 0),
       );
+  // The pulse score is intentionally blended so no single signal decides the whole repo story.
   const projectScore = clampScore(
     (activityScore + popularityScore + completenessScore + maintenanceScore) / 4,
   );
@@ -166,6 +175,7 @@ const useRepoCard = (repo) => {
   ];
 
   const clearCloseTimer = () => {
+    // Avoid a delayed unmount from an older close animation affecting a newly opened modal.
     if (closeTimerRef.current) {
       window.clearTimeout(closeTimerRef.current);
       closeTimerRef.current = null;
@@ -173,6 +183,7 @@ const useRepoCard = (repo) => {
   };
 
   const openDetails = () => {
+    // Reopening while an exit animation is running should immediately return to the open state.
     clearCloseTimer();
     setIsClosing(false);
     setIsDetailsOpen(true);
@@ -181,6 +192,7 @@ const useRepoCard = (repo) => {
   const closeDetails = () => {
     if (!isDetailsOpen || isClosing) return;
 
+    // Keep the modal mounted just long enough for the CSS exit animation to finish.
     setIsClosing(true);
     clearCloseTimer();
     closeTimerRef.current = window.setTimeout(() => {
@@ -191,6 +203,7 @@ const useRepoCard = (repo) => {
   };
 
   const handleCardKeyDown = (event) => {
+    // The card is clickable, so Enter/Space need to mirror button behavior for keyboard users.
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       openDetails();
@@ -202,6 +215,7 @@ const useRepoCard = (repo) => {
   useEffect(() => {
     if (!isDetailsOpen) return undefined;
 
+    // Lock page scroll while the modal is open, then restore whatever overflow existed before.
     const previousBodyOverflow = document.body.style.overflow;
     const previousHtmlOverflow = document.documentElement.style.overflow;
 

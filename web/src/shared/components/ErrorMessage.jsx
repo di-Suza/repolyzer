@@ -1,4 +1,5 @@
 const getErrorMessage = (error) => {
+  // Convert backend/RTK statuses into copy that feels specific instead of a generic failure.
   if (error?.status === 404) return 'GitHub user not found.';
   if (error?.status === 429) return 'GitHub rate limit exceeded. Try after a minute.';
   return 'Something went wrong. Please try again.';

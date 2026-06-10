@@ -10,6 +10,7 @@ const tooltipStyle = {
 };
 
 const LanguageChart = ({ repos }) => {
+  // Count each loaded repository by its primary GitHub language for a lightweight profile-level chart.
   const langCount = repos.reduce((acc, repo) => {
     if (repo.language) {
       acc[repo.language] = (acc[repo.language] || 0) + 1;

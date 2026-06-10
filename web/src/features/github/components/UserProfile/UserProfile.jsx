@@ -170,6 +170,7 @@ const UserProfile = ({ username, repos = [] }) => {
                         </p>
                         <div className="mt-4 space-y-4">
                           {languageBreakdown.slice(0, 6).map((language) => {
+                            // Percentages are based on the currently loaded repo snapshot, not all GitHub repos.
                             const percentage = Math.round((language.value / totalLanguageRepos) * 100);
 
                             return (

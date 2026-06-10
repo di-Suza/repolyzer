@@ -16,12 +16,15 @@ const REPOS_PER_PAGE = 30;
 const App = () => {
   const dispatch = useDispatch();
   const recentSearches = useSelector((state) => state.github.recentSearches);
+  // Keep raw input separate from the committed username so debounce can control when queries run.
   const [searchValue, setSearchValue] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [username, setUsername] = useState("");
+  // Repo query state is owned here because sort/page affect both the list and language modal cache view.
   const [sort, setSort] = useState("stars");
   const [page, setPage] = useState(1);
   const debouncedSearchValue = useDebounce(searchValue, SEARCH_DEBOUNCE_DELAY);
+  // The top-level user query decides which profile/repo sections are allowed to render.
   const {
     currentData: currentUserData,
     error: userError,
@@ -30,6 +33,7 @@ const App = () => {
   } = useGetUserQuery(username, {
     skip: !username,
   });
+  // Read the current RTK Query repo cache without firing another request for the language modal.
   const loadedReposResult = useSelector(
     githubApi.endpoints.getUserRepos.select({
       username,
@@ -40,6 +44,7 @@ const App = () => {
   );
   const loadedRepos = loadedReposResult?.data?.data?.repos ?? [];
 
+  // Commit a debounced username search, reset pagination, and persist the search shortcut.
   const applySearch = (nextUsername) => {
     const cleanUsername = nextUsername.trim();
 
@@ -57,6 +62,7 @@ const App = () => {
     applySearch(debouncedSearchValue);
   }, [debouncedSearchValue]);
 
+  // Once fresh profile data arrives, hide the recent-search dropdown so it does not cover the profile card.
   useEffect(() => {
     if (currentUserData && !isUserFetching) {
       setIsSearchActive(false);
@@ -64,6 +70,7 @@ const App = () => {
   }, [currentUserData, isUserFetching]);
 
   const handleSortChange = (nextSort) => {
+    // Sorting changes the repo cache key, so pagination must start over from page one.
     setSort(nextSort);
     setPage(1);
   };
@@ -77,10 +84,12 @@ const App = () => {
   const normalizedSearchValue = searchValue.trim().toLowerCase();
   const normalizedUsername = username.trim().toLowerCase();
   const currentUserLogin = currentUserData?.data?.user?.login?.toLowerCase();
+  // Treat cached data as usable only when it belongs to the username currently being shown.
   const hasFreshUserData = Boolean(username && currentUserLogin === normalizedUsername);
   const isWaitingForDebouncedSearch = Boolean(
     normalizedSearchValue && normalizedSearchValue !== normalizedUsername,
   );
+  // Show skeletons while debounce is pending or while a new username is replacing stale cached data.
   const shouldShowSearchLoading = Boolean(
     isWaitingForDebouncedSearch || (username && isUserFetching && !hasFreshUserData),
   );
@@ -108,6 +117,7 @@ const App = () => {
                   key={search}
                   type="button"
                   onMouseDown={(event) => {
+                    // Use mouse down so choosing a recent search happens before input blur hides the dropdown.
                     event.preventDefault();
                     setSearchValue(search);
                     applySearch(search);

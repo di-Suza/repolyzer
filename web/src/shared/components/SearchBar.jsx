@@ -1,5 +1,6 @@
 const SearchBar = ({ value, onChange, onFocus, onBlur }) => {
   const handleSubmit = (e) => {
+    // Search is driven by debounced input changes, so form submit should not reload the page.
     e.preventDefault();
   };
 
