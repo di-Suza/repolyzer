@@ -5,7 +5,7 @@ const SearchBar = ({ value, onChange, onFocus, onBlur }) => {
 
   return (
     <form
-      className="flex w-full max-w-2xl items-center gap-3 rounded-lg border border-(--color-border) bg-(--color-surface) p-2 shadow-(--shadow-panel) transition focus-within:border-(--color-border-strong) focus-within:ring-4 focus-within:ring-(--color-focus)"
+      className="flex w-full items-center gap-3 rounded-lg border border-(--color-border) bg-(--color-surface) p-2 shadow-(--shadow-panel) transition focus-within:border-(--color-border-strong) focus-within:ring-4 focus-within:ring-(--color-focus)"
       onSubmit={handleSubmit}
     >
       <input

@@ -5,6 +5,7 @@ import UserProfile from "./features/github/components/UserProfile";
 import RepoList from "./features/github/components/RepoList";
 import SortDropdown from "./shared/components/SortDropdown";
 import { addRecentSearch } from "./features/github/githubSlice";
+import { useGetUserQuery } from "./features/github/githubApi";
 import useDebounce from "./shared/hooks/useDebounce";
 import { AppHeader } from "./shared/components/AppHeader";
 
@@ -19,6 +20,13 @@ const App = () => {
   const [sort, setSort] = useState("stars");
   const [page, setPage] = useState(1);
   const debouncedSearchValue = useDebounce(searchValue, SEARCH_DEBOUNCE_DELAY);
+  const {
+    currentData: currentUserData,
+    isError: isUserError,
+    isFetching: isUserFetching,
+  } = useGetUserQuery(username, {
+    skip: !username,
+  });
 
   const applySearch = (nextUsername) => {
     const cleanUsername = nextUsername.trim();
@@ -37,24 +45,38 @@ const App = () => {
     applySearch(debouncedSearchValue);
   }, [debouncedSearchValue]);
 
+  useEffect(() => {
+    if (currentUserData && !isUserFetching) {
+      setIsSearchActive(false);
+    }
+  }, [currentUserData, isUserFetching]);
+
   const handleSortChange = (nextSort) => {
     setSort(nextSort);
     setPage(1);
   };
+
+  const handleSearchChange = (nextValue) => {
+    setSearchValue(nextValue);
+    setIsSearchActive(true);
+  };
+
+  const shouldShowRecentSearches =
+    searchValue.trim() && recentSearches.length > 0 && (isSearchActive || isUserError);
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,var(--color-surface-muted)_0,var(--color-app-bg)_18rem)] text-(--color-text-primary)">
       <AppHeader />
 
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="relative w-full max-w-2xl">
+        <div className="relative w-full">
           <SearchBar
             value={searchValue}
             onBlur={() => setIsSearchActive(false)}
-            onChange={setSearchValue}
+            onChange={handleSearchChange}
             onFocus={() => setIsSearchActive(true)}
           />
-          {isSearchActive && searchValue && recentSearches.length > 0 && (
+          {shouldShowRecentSearches && (
             <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-lg border border-(--color-border) bg-(--color-surface)/80 shadow-(--shadow-panel) backdrop-blur-md">
               {recentSearches.map((search) => (
                 <button
