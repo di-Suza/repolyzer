@@ -1,12 +1,18 @@
-import { useGetUserReposQuery } from '../githubApi';
-import RepoCard from './RepoCard';
-import SkeletonCard from '../../../shared/components/SkeletonCard';
-import ErrorMessage from '../../../shared/components/ErrorMessage';
+import { useGetUserReposQuery } from "../githubApi";
+import RepoCard from "./RepoCard";
+import SkeletonCard from "../../../shared/components/SkeletonCard";
+import ErrorMessage from "../../../shared/components/ErrorMessage";
+import LanguageChart from "./LanguageChart";
 
 const PER_PAGE = 30;
 
 const RepoList = ({ username, sort, page, onLoadMore }) => {
-  const { data, isLoading, isFetching, error } = useGetUserReposQuery({ username, sort, page, perPage: PER_PAGE });
+  const { data, isLoading, isFetching, error } = useGetUserReposQuery({
+    username,
+    sort,
+    page,
+    perPage: PER_PAGE,
+  });
 
   if (isLoading) {
     return (
@@ -46,9 +52,11 @@ const RepoList = ({ username, sort, page, onLoadMore }) => {
           disabled={isFetching}
           onClick={onLoadMore}
         >
-          {isFetching ? 'Loading...' : 'Load More'}
+          {isFetching ? "Loading..." : "Load More"}
         </button>
       )}
+
+      {repos.length > 0 && <LanguageChart repos={repos} />}
     </div>
   );
 };
