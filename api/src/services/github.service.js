@@ -74,15 +74,3 @@ export const getGithubUserRepos = async (
     `Unable to fetch repositories for GitHub user ${username}`,
   );
 };
-
-export const getGithubRepository = async (owner, repo) => {
-  const safeOwner = requirePathValue(owner, 'Repository owner');
-  const safeRepo = requirePathValue(repo, 'Repository name');
-  const cacheKey = createCacheKey('github', 'repo', safeOwner, safeRepo);
-
-  return requestGithub(
-    cacheKey,
-    () => githubClient.get(`/repos/${safeOwner}/${safeRepo}`),
-    `Unable to fetch GitHub repository ${owner}/${repo}`,
-  );
-};
