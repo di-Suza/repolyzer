@@ -3,12 +3,12 @@ import SkeletonProfile from '../../../shared/components/SkeletonProfile';
 import ErrorMessage from '../../../shared/components/ErrorMessage';
 
 const UserProfile = ({ username }) => {
-  const { data, isLoading, error } = useGetUserQuery(username);
+  const { currentData, isFetching, error } = useGetUserQuery(username);
 
-  if (isLoading) return <SkeletonProfile />;
+  if (isFetching && !currentData) return <SkeletonProfile />;
   if (error) return <ErrorMessage error={error} />;
 
-  const { avatar_url, login, name, bio, followers, following, public_repos } = data.data.user;
+  const { avatar_url, login, name, bio, followers, following, public_repos } = currentData.data.user;
 
   return (
     <div className="w-full rounded-lg border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-panel)">
