@@ -75,11 +75,9 @@ const App = () => {
         </div>
 
         {username && (
-          <div className="grid w-full gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.4fr)]">
-            <div className="space-y-4">
-              <UserProfile username={username} />
-              <SortDropdown value={sort} onChange={handleSortChange} />
-            </div>
+          <div className="flex w-full flex-col gap-6">
+            <UserProfile username={username} />
+            <SortDropdown value={sort} onChange={handleSortChange} />
             <RepoList
               username={username}
               sort={sort}
