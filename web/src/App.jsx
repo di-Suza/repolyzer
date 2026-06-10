@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import SearchBar from "./shared/components/SearchBar";
 import UserProfile from "./features/github/components/UserProfile";
+import RepoList from "./features/github/components/RepoList";
 
 const App = () => {
   const [username, setUsername] = useState("");
@@ -11,6 +12,7 @@ const App = () => {
       {username && (
         <>
           <UserProfile username={username} />
+          <RepoList username={username} />
         </>
       )}
     </div>
