@@ -32,3 +32,75 @@ button,
 input {
   font: inherit;
 }
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+@keyframes repoBackdropIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+
+  to {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+  }
+}
+
+@keyframes repoBackdropOut {
+  from {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+  }
+
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+}
+
+@keyframes repoModalIn {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.92);
+  }
+
+  65% {
+    transform: translateY(-3px) scale(1.02);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes repoModalOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+}
+
+.repo-backdrop-enter {
+  animation: repoBackdropIn 180ms ease-out both;
+}
+
+.repo-backdrop-exit {
+  animation: repoBackdropOut 160ms ease-in both;
+}
+
+.repo-modal-enter {
+  animation: repoModalIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.repo-modal-exit {
+  animation: repoModalOut 160ms ease-in both;
+}

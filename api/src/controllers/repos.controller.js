@@ -1,4 +1,4 @@
-import { getGithubRepository, getGithubUserRepos } from '../services/github.service.js';
+import { getGithubUserRepos } from '../services/github.service.js';
 import { catchAsync } from '../utils/catchAsync.js';
 
 export const getUserRepos = catchAsync(async (req, res) => {
@@ -15,17 +15,6 @@ export const getUserRepos = catchAsync(async (req, res) => {
     results: repos.length,
     data: {
       repos,
-    },
-  });
-});
-
-export const getRepo = catchAsync(async (req, res) => {
-  const repo = await getGithubRepository(req.params.owner, req.params.repo);
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      repo,
     },
   });
 });
