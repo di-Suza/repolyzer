@@ -47,7 +47,7 @@ const App = () => {
       <AppHeader />
 
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="w-full max-w-2xl">
+        <div className="relative w-full max-w-2xl">
           <SearchBar
             value={searchValue}
             onBlur={() => setIsSearchActive(false)}
@@ -55,7 +55,7 @@ const App = () => {
             onFocus={() => setIsSearchActive(true)}
           />
           {isSearchActive && searchValue && recentSearches.length > 0 && (
-            <div className="mt-2 overflow-hidden rounded-lg border border-(--color-border) bg-(--color-surface) shadow-(--shadow-panel)">
+            <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-lg border border-(--color-border) bg-(--color-surface)/80 shadow-(--shadow-panel) backdrop-blur-md">
               {recentSearches.map((search) => (
                 <button
                   className="block w-full px-4 py-3 text-left text-sm font-medium text-(--color-text-primary) transition hover:bg-(--color-surface-muted)"
