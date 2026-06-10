@@ -1,24 +1,16 @@
-import { useGetUserReposQuery } from "../githubApi";
-import RepoCard from "./RepoCard";
-import SkeletonCard from "../../../shared/components/SkeletonCard";
-import ErrorMessage from "../../../shared/components/ErrorMessage";
-
-const PER_PAGE = 30;
+import RepoCard from '../RepoCard';
+import SkeletonCard from '../../../../shared/components/SkeletonCard';
+import ErrorMessage from '../../../../shared/components/ErrorMessage';
+import useRepoList from './useRepoList';
 
 const RepoList = ({ username, sort, page, onLoadMore }) => {
-  const { currentData, isFetching, error } = useGetUserReposQuery({
-    username,
-    sort,
+  const { error, hasMore, isFetching, isLoading, repos } = useRepoList({
     page,
-    perPage: PER_PAGE,
+    sort,
+    username,
   });
-  const repos = currentData?.data?.repos ?? [];
-  const firstRepoOwner = repos[0]?.owner?.login?.toLowerCase();
-  const isStaleRepoData = Boolean(
-    repos.length > 0 && firstRepoOwner !== username.trim().toLowerCase(),
-  );
 
-  if ((isFetching && (!currentData || isStaleRepoData)) || isStaleRepoData) {
+  if (isLoading) {
     return (
       <div className="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
         {[...Array(10)].map((_, i) => (
@@ -29,8 +21,6 @@ const RepoList = ({ username, sort, page, onLoadMore }) => {
   }
 
   if (error) return <ErrorMessage error={error} />;
-
-  const hasMore = (currentData?.results ?? 0) >= PER_PAGE;
 
   if (!repos.length) {
     return (
@@ -56,7 +46,7 @@ const RepoList = ({ username, sort, page, onLoadMore }) => {
             disabled={isFetching}
             onClick={onLoadMore}
           >
-            {isFetching ? "Loading repos..." : "Load more repositories"}
+            {isFetching ? 'Loading repos...' : 'Load more repositories'}
           </button>
         </div>
       )}
