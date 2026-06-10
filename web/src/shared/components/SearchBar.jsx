@@ -1,8 +1,4 @@
-import { useState } from 'react';
-
-const SearchBar = ({ onSearch }) => {
-  const [value, setValue] = useState('');
-
+const SearchBar = ({ value, onChange, onSearch, onFocus, onBlur }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (value.trim()) onSearch(value.trim());
@@ -16,7 +12,9 @@ const SearchBar = ({ onSearch }) => {
       <input
         className="h-12 min-w-0 flex-1 rounded-md bg-(--color-app-bg) px-3 text-base font-medium text-(--color-text-primary) outline-none placeholder:text-(--color-text-muted)"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
+        onFocus={onFocus}
         placeholder="Enter GitHub username..."
       />
       <button
