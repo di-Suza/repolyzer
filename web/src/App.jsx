@@ -22,6 +22,7 @@ const App = () => {
   const debouncedSearchValue = useDebounce(searchValue, SEARCH_DEBOUNCE_DELAY);
   const {
     currentData: currentUserData,
+    error: userError,
     isError: isUserError,
     isFetching: isUserFetching,
   } = useGetUserQuery(username, {
@@ -61,8 +62,10 @@ const App = () => {
     setIsSearchActive(true);
   };
 
-  const shouldShowRecentSearches =
-    searchValue.trim() && recentSearches.length > 0 && (isSearchActive || isUserError);
+  const shouldShowRecentSearches = isSearchActive && searchValue.trim() && recentSearches.length > 0;
+  const isUserNotFound = isUserError && userError?.status === 404;
+  const canShowUserProfile = username && !isUserError;
+  const canShowRepos = username && currentUserData && !isUserError;
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,var(--color-surface-muted)_0,var(--color-app-bg)_18rem)] text-(--color-text-primary)">
@@ -119,9 +122,23 @@ const App = () => {
           </section>
         )}
 
-        {username && (
+        {isUserNotFound && (
+          <section className="rounded-lg border border-(--color-border) bg-(--color-surface) p-8 text-center shadow-(--shadow-panel)">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-full border border-(--color-border) bg-(--color-app-bg) text-(--color-accent-hover)">
+              <span className="text-2xl font-semibold">?</span>
+            </div>
+            <h2 className="mt-5 text-2xl font-semibold text-(--color-text-primary)">GitHub user not found</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-(--color-text-muted)">
+              We could not find a GitHub profile for <span className="font-semibold text-(--color-text-primary)">{username}</span>.
+              Check the spelling or pick a recent search.
+            </p>
+          </section>
+        )}
+
+        {canShowUserProfile && <UserProfile username={username} />}
+
+        {canShowRepos && (
           <div className="flex w-full flex-col gap-6">
-            <UserProfile username={username} />
             <SortDropdown value={sort} onChange={handleSortChange} />
             <RepoList
               username={username}
