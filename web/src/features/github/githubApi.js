@@ -20,16 +20,21 @@ export const githubApi = createApi({
         sort = "updated",
         direction = "desc",
         type = "owner",
-      }) => ({
-        url: `/repos/${username}/repos`,
-        params: {
-          page,
-          perPage,
-          sort,
-          direction,
-          type,
-        },
-      }),
+      }) => {
+        // GitHub's user repos endpoint does not support "stars", so fetch a stable page and sort stars in the UI.
+        const githubSort = sort === "stars" ? "updated" : sort;
+
+        return {
+          url: `/repos/${username}/repos`,
+          params: {
+            page,
+            perPage,
+            sort: githubSort,
+            direction,
+            type,
+          },
+        };
+      },
       // Page is intentionally excluded so all pages for the same user+sort append into one list.
       serializeQueryArgs: ({ queryArgs }) => `${queryArgs.username}-${queryArgs.sort}`,
       merge: (currentCache, newItems, { arg }) => {
