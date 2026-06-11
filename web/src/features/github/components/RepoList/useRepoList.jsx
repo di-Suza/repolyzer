@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { useGetUserReposQuery } from '../../githubApi';
 
 const PER_PAGE = 30;
@@ -11,6 +13,19 @@ const useRepoList = ({ username, sort, page }) => {
     perPage: PER_PAGE,
   });
   const repos = currentData?.data?.repos ?? [];
+  const sortedRepos = useMemo(() => {
+    if (sort !== 'stars') {
+      return repos;
+    }
+
+    // Stars are an app-level sort because GitHub does not support star sorting on this endpoint.
+    return [...repos].sort((leftRepo, rightRepo) => {
+      const leftStars = leftRepo.stargazers_count ?? 0;
+      const rightStars = rightRepo.stargazers_count ?? 0;
+
+      return rightStars - leftStars;
+    });
+  }, [repos, sort]);
   const firstRepoOwner = repos[0]?.owner?.login?.toLowerCase();
   // Guard against briefly showing the previous user's repos while a new username is loading.
   const isStaleRepoData = Boolean(
@@ -25,7 +40,7 @@ const useRepoList = ({ username, sort, page }) => {
     hasMore,
     isFetching,
     isLoading,
-    repos,
+    repos: sortedRepos,
   };
 };
 
